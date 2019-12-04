@@ -1,0 +1,24 @@
+on init_charge
+    mkdir /productinfo 0771 system system
+    ubiattach 0 ubipac
+    # exec /sbin/resize2fs -ef /fstab.${ro.hardware}
+    mount_all /fstab.${ro.hardware}
+    chown system system /productinfo
+    chmod 0771 /productinfo
+
+on early-init
+    start ueventd
+
+on charger
+    class_start charger
+
+service ueventd /sbin/ueventd
+    class core
+    critical
+    seclabel u:r:ueventd:s0
+    shutdown critical
+
+service charge /vendor/bin/charge
+    class charger
+    user root
+    oneshot
